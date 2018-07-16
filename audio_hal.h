@@ -26,7 +26,7 @@
 // Additionnal latency introduced by audio DSP and hardware in ms
 #define AUDIO_HW_OUT_LATENCY_MS 0
 // Default audio output sample rate
-#define AUDIO_HW_OUT_SAMPLERATE 44100
+#define AUDIO_HW_OUT_SAMPLERATE 48000
 // Default audio output channel mask
 #define AUDIO_HW_OUT_CHANNELS (AUDIO_CHANNEL_OUT_STEREO)
 // Default audio output sample format
@@ -38,7 +38,7 @@
 #define AUDIO_HW_OUT_PERIOD_BYTES (AUDIO_HW_OUT_PERIOD_SZ * 2 * sizeof(int16_t))
 
 // Default audio input sample rate
-#define AUDIO_HW_IN_SAMPLERATE 44100
+#define AUDIO_HW_IN_SAMPLERATE 48000
 // Default audio input channel mask
 #define AUDIO_HW_IN_CHANNELS (AUDIO_CHANNEL_IN_MONO)//(AudioSystem::CHANNEL_IN_MONO)
 // Default audio input sample format
@@ -100,8 +100,24 @@ struct tiny4412_stream_in {
     struct audio_stream_in stream;
     struct tiny4412_audio_device *dev;
     audio_devices_t device;
-    struct pcm_config config;
+    struct pcm_config *config;
     pthread_mutex_t lock; /* see note below on mutex acquisition order */
+
+    struct pcm *pcm;
+    bool standby;
+    bool muted;
+    struct resampler_itfe *resampler;
+    struct resampler_buffer_provider buf_provider;
+    int16_t *buffer;
+    unsigned int channel_count;
+    unsigned int requested_rate;
+    size_t frames_in;
+    int read_status;
+    audio_source_t input_source;
+    audio_io_handle_t io_handle;
+    audio_channel_mask_t channel_mask;
+    audio_input_flags_t flags;
+    
 };
 
 
@@ -110,7 +126,9 @@ struct tiny4412_audio_device {
     pthread_mutex_t lock; /* see note below on mutex acquisition order */
     audio_devices_t out_device; /* "or" of stream_out.device for all active output streams */
     audio_devices_t in_device;
+    bool mic_mute;
     struct tiny4412_stream_out *outputs[OUTPUT_TOTAL];
+    struct tiny4412_stream_in *mic_input;
 };
 
 
