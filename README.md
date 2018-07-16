@@ -1,3 +1,3 @@
-# tiny4412_audiohal
+# tiny4412_audiohal in c language
 
-这个是将audiohardware.cpp改成c的，android 5之后audio hal都是用c code
+
