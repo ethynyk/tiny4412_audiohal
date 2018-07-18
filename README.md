@@ -1,3 +1,3 @@
-# tiny4412_audiohal in c language
+# tiny4412_audiohal implemented in c language
 
 
